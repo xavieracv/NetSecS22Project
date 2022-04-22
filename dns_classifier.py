@@ -127,4 +127,4 @@ print("Fitting model...")
 model.fit(train_data,train_labels,validation_data=(test_data,test_labels),batch_size=128,epochs=3)
 
 """Note: previous error was occurring because the shape of the train and test data is not the same."""
-model.save("DGAModel")
+
