@@ -8,7 +8,7 @@ Original file is located at
 """
 
 import glob
-from   google.colab import drive
+#from   google.colab import drive
 import tensorflow as tf
 import numpy as np
 import pandas as pd
@@ -24,9 +24,9 @@ from keras.preprocessing.sequence import pad_sequences
 from keras.models import Sequential
 from keras.layers.core import Dense, Dropout, Activation
 
-drive.mount("/content/gdrive")
+#drive.mount("/content/gdrive")
 
-dataframe = pd.read_csv("/content/gdrive/MyDrive/NetSec_S22_Project/classifier_dataset/data/dga_domains_full.csv",header=None, usecols=[2,0])
+dataframe = pd.read_csv("dga_domains_full.csv",header=None, usecols=[2,0])
 
 print(dataframe.shape[0])
 
