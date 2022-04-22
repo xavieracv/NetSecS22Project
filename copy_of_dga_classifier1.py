@@ -9,6 +9,7 @@ Original file is located at
 ##Import Tensorflow
 """
 
+print("Loading dependencies...")
 import tensorflow as tf
 
 from tensorflow.keras import datasets, layers, models
@@ -20,15 +21,15 @@ import matplotlib.pyplot as plt
 import numpy as np
 import glob
 import pandas as pd
-from google.colab import drive
-drive.mount("/content/gdrive")
+#from google.colab import drive
+#drive.mount("/content/gdrive")
 
-path = "/content/gdrive/MyDrive/NetSec_S22_Project/classifier_dataset/data"
+#path = "/content/gdrive/MyDrive/NetSec_S22_Project/classifier_dataset/data"
 
-
-domain_train = pd.read_csv(path+"/train_combined_multiclass.csv",header=[0])
-domain_test = pd.read_csv(path+"/test_combined_multiclass.csv",header=[0])
-
+print("Loading CSV Data...")
+domain_train = pd.read_csv("train_combined_multiclass.csv",header=[0])
+domain_test = pd.read_csv("test_combined_multiclass.csv",header=[0])
+print("CSV Data Loaded.")
 train_labels = pd.DataFrame(domain_train.pop("class"))
 test_labels  =  np.asarray(domain_test.pop("class"))
 
@@ -38,7 +39,7 @@ train_labels
 
 classes = np.unique(train_labels)
 n_classes = len(classes)
-print(classes)
+#print(classes)
 
 domain_test.head()
 
@@ -79,10 +80,11 @@ def preprocess(data, maxLen = 0):
 
 maxLen_of_both = 253  # of both train and test
 
+print("Preprocessing Train and Test Sets...")
 train_data, _ = preprocess(domain_train, maxLen_of_both)
 test_data, maxLen_of_test = preprocess(domain_test, maxLen_of_both)
 assert(maxLen_of_test == maxLen_of_both)
-
+print("Preprocessing done.")
 """##Create Model/Train"""
 
 from keras.datasets import reuters
@@ -116,10 +118,12 @@ model.add(layers.Dropout(0.2))
 model.add(layers.Dense(128, activation='relu'))
 model.add(layers.Dense(n_classes, activation='softmax'))
 
-model.summary()
+print(model.summary())
+
 
 model.compile(optimizer='adam',loss='sparse_categorical_crossentropy',metrics=['accuracy'])
 
+print("Fitting model...")
 model.fit(train_data,train_labels,validation_data=(test_data,test_labels),batch_size=128,epochs=3)
 
 """Note: previous error was occurring because the shape of the train and test data is not the same."""
