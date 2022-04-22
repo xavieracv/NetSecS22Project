@@ -39,20 +39,24 @@ from trainModel import DataGenerator
 # ---------------------------------
 # LOAD THE MODEL
 
-modelName = 'DGAModel'
-model = keras.models.load_model(modelName)
-print("Info for ", modelName)
+# havent worked on this yet...
+def model_load():
+    modelName = 'DGAModel'
+    model = keras.models.load_model(modelName)
+    print("Info for ", modelName)
 
-# ---------------------------------
-# GET ACCURACY
+    # ---------------------------------
+    # GET ACCURACY
 
-test_loss, test_acc = model.evaluate(eval_generator, verbose=2)
-
-print(test_acc)
+    test_loss, test_acc = model.evaluate(eval_generator, verbose=2)
+    print(test_acc)
 
 def main():
-    print("hey there")
+    if (len(sys.arv) < 3):
+        print("Missing Command Line Argument: <path_to_pcap>")
+        return
 
-# __name__
+    model_load() # load the trained model
+
 if __name__=="__main__":
     main()
