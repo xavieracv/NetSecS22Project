@@ -1,8 +1,8 @@
 import glob
 import numpy as np
-from PIL import Image
 import keras
-
+import sys
+from PIL import Image
 from trainModel import DataGenerator
 # ---------------------------------
 # PATH TO THE TEST FILES
@@ -34,11 +34,11 @@ from trainModel import DataGenerator
 #             'shuffle': True}
 
 # eval_generator = DataGenerator(filesTest, labels, **params)
- 
+
 
 # ---------------------------------
 # LOAD THE MODEL
-  
+
 modelName = 'DGAModel'
 model = keras.models.load_model(modelName)
 print("Info for ", modelName)
@@ -49,3 +49,10 @@ print("Info for ", modelName)
 test_loss, test_acc = model.evaluate(eval_generator, verbose=2)
 
 print(test_acc)
+
+def main():
+    print("hey there")
+
+# __name__
+if __name__=="__main__":
+    main()
