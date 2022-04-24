@@ -28,25 +28,27 @@ from keras.layers.core import Dense, Dropout, Activation
 
 dataframe = pd.read_csv("dga_domains_full.csv",header=None, usecols=[2,0])
 
-print(dataframe.shape[0])
+#print(dataframe.shape[0])
 
-dataframe[0].replace(to_replace={'dga':1, 'legit':0}, value=None, inplace=True)
+dataframe[0].replace(to_replace=['dga', 'legit'], value=[1,0], inplace=True)
+
 print(dataframe.head())
+print("\n")
 
 X = dataframe[2] # domains
 Y = dataframe[0] # label
 
-print(X.head())
-print(Y.head())
+#print(X.head())
+#print(Y.head())
 
 # domains + labels
 # X_train + Y_train, X_test  + Y_test
 
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2,random_state=23)
 
-for i in range(0,10):
-  print(str(X_train.values[i]) + " " + str(Y_train.values[i]))
-  print(str(X_test.values[i]) + " " + str(Y_test.values[i]))
+#for i in range(0,10):
+#  print(str(X_train.values[i]) + " " + str(Y_train.values[i]))
+#  print(str(X_test.values[i]) + " " + str(Y_test.values[i]))
 
 # X_train = domains
 # Y_train = labeles (1 or 0)
