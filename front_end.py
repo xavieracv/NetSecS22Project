@@ -6,9 +6,10 @@ import dpkt
 from dpkt.utils import mac_to_str, inet_to_str, make_dict
 from pprint import pprint
 
-# import numpy as np
-# import keras
-# TODO: from model file, import pre-processing function
+import pandas as pd
+import keras
+from dns_classifier import preprocess
+from rm_tld import remove_tld
 
 
 def verify_pcap(pcap_file):
@@ -25,21 +26,20 @@ def verify_pcap(pcap_file):
         print("ERROR: empty file:", pcap_file, file=stderr)
         exit(1)
 
-def model_load():
+def model_load(model_file):
     """
     Loads model from file
     """
-    modelName = 'DGAModel'
-    # TODO: place DGAModel in same directory and uncomment the following line
-    # model = keras.models.load_model(modelName)
-    model = None  # comment/remove me once prev is uncommented!
-    print("Info for ", modelName)
+    model = keras.models.load_model(model_file)
+    print("Info for ", model_file)
 
     # ---------------------------------
     # GET ACCURACY
     # eval_generator # generates data for evaluating model
     # test_loss, test_acc = model.evaluate(eval_generator, verbose=2)
     # print(test_acc)
+    print(model.summary())
+
     return model
 
 def print_packet(buf):
@@ -157,39 +157,101 @@ def detectDNSTunneling(pcap_file, model):
         suspicious_count = 0
         for timestamp, buf in pcap:
             try:
-                print_packet(buf)  # sample output
-                # TODO: read packet as DNS query
+                # print_packet(buf)  # sample output
 
-                # TODO: extract domain from packet
-                # domain = 
+                ##-------------------------------------------------------------
+                # Read packet as DNS query
 
-                # TODO: send domain through pre-processing pipeline 
+                # Unpack the Ethernet frame (mac src/dst, ethertype)
+                eth = dpkt.ethernet.Ethernet(buf)
+
+                # Make sure the Ethernet data contains an IP packet
+                if not isinstance(eth.data, dpkt.ip.IP):
+                    # Silently ignore
+                    # print('Non IP Packet type not supported %s\n' % eth.data.__class__.__name__)
+                    continue
+
+                # Now unpack the data within the Ethernet frame (the IP packet)
+                # Pulling out src, dst, length, fragment info, TTL, and Protocol
+                ip = eth.data
+
+                dns = None
+                # Check for UDP in the transport layer
+                if isinstance(ip.data, dpkt.udp.UDP):
+                    # Set the UDP data
+                    udp = ip.data
+
+                    # Now see if we can parse the contents of the truncated DNS request
+                    try:
+                        dns = dpkt.dns.DNS()
+                        dns.unpack(udp.data)
+                    except (dpkt.dpkt.NeedData, dpkt.dpkt.UnpackError, Exception) as e:
+                        # Silently ignore
+                        # print('\nError Parsing DNS, Might be a truncated packet...')
+                        # print('Exception: {!r}'.format(e))
+                        continue
+
+                if dns is None:
+                    continue
+
+                # Extract domain(s) from packet (query domains and answer domains)
+                domains = []
+                for query in dns.qd:
+                    domains.append(query.name)
+                for answer in dns.an:
+                    domains.append(answer.name)
+                df = pd.Dataframe(domains, columns=['domain'])
+
+                # Send domains through pre-processing pipeline 
                 # (removes TLD, converts to ASCII int representations, pads, etc.)
-                # processed_domain = process(domain)
+                df = df.transform(remove_tld)
+                processed_domains = preprocess(df, 253)  # to match maxLen the model was trained with
 
                 # Send processed domain into model.predict()
-                # prediction = model.predict(processed_domain)
+                predictions = model.predict(processed_domains)
 
-                # If model predicts that this domain is using DNS tunneling,
-                # report packet number and domain name
-                # if prediction == 1:
-                #   suspicious_count += 1
-                #   print(packet_num, domain)  # TODO: entire packet description?
-                continue  # remove me eventually
+                # If model predicts that any domains in this packet use
+                # DNS tunneling, report packet information
+                if 1 in predictions:
+                    suspicious_count += 1
+    
+                    print('IP: %s -> %s   (len=%d ttl=%d)' %
+                         (inet_to_str(ip.src), inet_to_str(ip.dst), ip.len, ip.ttl))
+                    print('UDP: sport={:d} dport={:d} sum={:d} ulen={:d}'.format(udp.sport, udp.dport,
+                                                                                 udp.sum, udp.ulen))
+
+                    i = 0                                  
+                    # Print out the DNS info
+                    print('Queries: {:d}'.format(len(dns.qd)))
+                    for query in dns.qd:
+                        # NOTE: relies on no portions of this process reordering the domains
+                        print('\t {:s} Type:{:d} \t Tunneled:{:d}'.format(query.name, query.type, predictions[i]))
+                        i += 1
+                    print('Answers: {:d}'.format(len(dns.an)))
+                    for answer in dns.an:
+                        if answer.type == 5:
+                            print('\t {:s}: type: CNAME Answer: {:s} \t Tunneled:{:d}'.format(answer.name, answer.cname, predictions[i]))
+                        elif answer.type == 1:
+                            print('\t {:s}: type: A Answer: {:s} \t Tunneled:{:d}'.format(answer.name, inet_to_str(answer.ip), predictions[i]))
+                        else:
+                            pprint(make_dict(answer))
+                        i +=1
             except Exception:
-                # Silently ignore non-DNS packets
+                # Silently ignore exceptions caused by malformed packets
                 continue
         print("Found", suspicious_count, "packets that may be using DNS tunneling")
 
 def main():
     parser = argparse.ArgumentParser(description='Performs DNS tunneling detection on a packet capture')
     parser.add_argument('-f', '--pcap_file', required=True, type=str, help='Path to the .pcap file')
+    parser.add_argument('-m', '--model_file', type=str, default='dns_model.h5', help='Path to the pre-trained model')
     args = parser.parse_args()
 
+    model_file = args.model_file
     pcap_file = args.pcap_file
     verify_pcap(pcap_file)
 
-    dns_tunneling_detector = model_load()  # load the trained model
+    dns_tunneling_detector = model_load(model_file)  # load the trained model
     detectDNSTunneling(pcap_file, dns_tunneling_detector)
 
 if __name__=="__main__":
