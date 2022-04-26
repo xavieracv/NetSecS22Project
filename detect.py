@@ -14,6 +14,7 @@ import binascii
 import base64
 import time
 import pyshark
+import tensorflow as tf
 
 #SERVER_IP = '18.213.140.149'
 #SERVER_PORT = 50007
@@ -29,19 +30,25 @@ sus_ip_dest   =  ""
 def analyze(model, pkt):
 
     try:
+
         queryname =  pkt['dns'].qry_name
-        respname  =  pkt['dns'].resp_name
+        respname  =  pkt['dns'].cname
     except:
         return
 
-    print(queryname)
-    print(respname)
+    if (queryname == "cmVxdWVzdGluZyBpbnN0cnVjdGlvbnM0"):
+        print("WOOOOOOOOOO")
+
+    print(queryname) # will look like cmVxdWVzdGluZyBpbnN0cnVjdGlvbnM0.netsec-project.me when malicious
+    print(respname)  # will look like RERPUyAxMjguMTQzLjIyLjExOQ00.netsec-project.me when malicious
+
     # Run domains through Model...
+    # Alert user if positive classification
 
 
 def detect():
-
-    model = tf.keras.models.load_model("dns_model.h5")
+    model = 3
+    #model = tf.keras.models.load_model("dns_model.h5")
     capture = pyshark.LiveCapture(interface='en0', bpf_filter='udp', display_filter='dns')
 
     for packet in capture.sniff_continuously():
