@@ -36,9 +36,6 @@ def analyze(model, pkt):
     except:
         return
 
-    if (queryname == "cmVxdWVzdGluZyBpbnN0cnVjdGlvbnM0"):
-        print("WOOOOOOOOOO")
-
     print(queryname) # will look like cmVxdWVzdGluZyBpbnN0cnVjdGlvbnM0.netsec-project.me when malicious
     print(respname)  # will look like RERPUyAxMjguMTQzLjIyLjExOQ00.netsec-project.me when malicious
 
