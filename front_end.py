@@ -6,6 +6,7 @@ import dpkt
 from dpkt.utils import mac_to_str, inet_to_str, make_dict
 from pprint import pprint
 
+import numpy as np
 import pandas as pd
 import keras
 from dns_classifier import preprocess
@@ -200,15 +201,16 @@ def detectDNSTunneling(pcap_file, model):
                     domains.append(query.name)
                 for answer in dns.an:
                     domains.append(answer.name)
-                df = pd.Dataframe(domains, columns=['domain'])
+                df = pd.DataFrame(domains, columns=['domain'])
 
                 # Send domains through pre-processing pipeline 
                 # (removes TLD, converts to ASCII int representations, pads, etc.)
-                df = df.transform(remove_tld)
-                processed_domains = preprocess(df, 253)  # to match maxLen the model was trained with
+                df['domain'] = df['domain'].transform(remove_tld)
+                processed_domains, _ = preprocess(df, 253)  # to match maxLen the model was trained with
 
-                # Send processed domain into model.predict()
+                # Send processed domain into model.predict() 
                 predictions = model.predict(processed_domains)
+                predictions = np.argmax(predictions, axis=1)
 
                 # If model predicts that any domains in this packet use
                 # DNS tunneling, report packet information
