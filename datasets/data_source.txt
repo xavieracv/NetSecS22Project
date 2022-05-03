@@ -1,0 +1,15 @@
+# Sources for all Datasets
+
+"Detecting DNS Threats: A Deep Learning Model to Rule Them All" by Franco Palau et al.
+	- test_combined_multiclass.csv
+	- train_combined_multiclass.csv
+	- Note: Includes benign, dga, and dns tunneling domains
+
+“DNS Tunneling Queries for Binary Classification” by Yakov Bubnov (DOI:10.17632/MZN9HVDCXG.1)
+	- dns_test.csv
+	- dns_train.csv
+	- dns_val.csv 
+
+"Algorithmically generated malicious domain names detection based on n-grams features" by Cucchiarelli et al. 
+(https://github.com/chrmor/DGA_domains_dataset)
+	- dga_domains_full.csv
