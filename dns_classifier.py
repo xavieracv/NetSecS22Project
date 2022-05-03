@@ -45,8 +45,8 @@ def preprocess(data, maxLen = 0):
 
 if __name__ == "__main__":
   print("Loading CSV Data...")
-  domain_train = pd.read_csv("train_combined_multiclass.csv",header=[0])
-  domain_test = pd.read_csv("test_combined_multiclass.csv",header=[0])
+  domain_train = pd.read_csv("datasets/train_combined_multiclass.csv",header=[0])
+  domain_test =  pd.read_csv("datasets/test_combined_multiclass.csv",header=[0])
   print("CSV Data Loaded.")
   train_labels = pd.DataFrame(domain_train.pop("class"))
   test_labels  =  np.asarray(domain_test.pop("class"))

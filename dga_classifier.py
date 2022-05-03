@@ -26,7 +26,7 @@ from keras.layers.core import Dense, Dropout, Activation
 
 #drive.mount("/content/gdrive")
 
-dataframe = pd.read_csv("dga_domains_full.csv",header=None, usecols=[2,0])
+dataframe = pd.read_csv("datasets/dga_domains_full.csv",header=None, usecols=[2,0])
 
 #print(dataframe.shape[0])
 
