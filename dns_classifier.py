@@ -23,7 +23,7 @@ def preprocess(data, maxLen = 0):
   tokenizer = Tokenizer(num_words=None, char_level=True)
   tokenizer.fit_on_texts(data["domain"])
   data_unpadded = pd.DataFrame()
-  data_unpadded["tokenized"] = [ flatten(tokenizer.texts_to_sequences(domain)) for domain in data["domain"]]
+  data_unpadded["tokenized"] = [ tokenizer.texts_to_sequences(domain) for domain in data["domain"]]
   
   #find longest sequence created
   #maxLen = 0
@@ -42,9 +42,9 @@ def preprocess(data, maxLen = 0):
 def main():
 
   print("Loading CSV Data...")
-  train = pd.read_csv("dns_train.csv")
-  test = pd.read_csv("dns_test.csv")
-  val = pd.read_csv("dns_val.csv")
+  train = pd.read_csv("datasets/dns_train.csv")
+  test = pd.read_csv("datasets/dns_test.csv")
+  val = pd.read_csv("datasets/dns_val.csv")
   print("CSV Data Loaded.")
 
   #Separate domain data from label;s
@@ -78,6 +78,9 @@ def main():
   test_data, maxLen_of_test = preprocess(domain_test, maxLen_of_both)
   print("Preprocessing done.")  
 
+  print(train_data[0])
+
+
   """Reshape Data for Model Input"""
   row,col = train_data.shape
   train_data = tf.reshape(train_data,(row,col,1))
@@ -99,24 +102,24 @@ def main():
   model.add(layers.Dense(4000))
   model.add(layers.Dropout(0.3))
   model.add(layers.Dense(1, activation='sigmoid'))
-  print(model.summary())
-  model.compile(optimizer='adam',loss='binary_crossentropy',metrics=['acc'])
+  #print(model.summary())
+  #model.compile(optimizer='adam',loss='binary_crossentropy',metrics=['acc'])
 
   
   print("Fitting model...")
-  model.fit(train_data,train_labels,validation_data=(test_data,test_labels),batch_size=128,epochs=3)
+  # model.fit(train_data,train_labels,validation_data=(test_data,test_labels),batch_size=128,epochs=3)
 
 
   print("Model performance metrics: ")
 
-  y_pred = model.predict(val_data,verbose=1)
-  #Convert to binary classification (0/1)
-  y_pred = (y_pred > 0.5)
-  #Replace bool value with 0/1
-  y_pred = np.where(y_pred==True,1,y_pred)
-  print("Precision: ",precision_score(val_labels, y_pred , average="macro"))
-  print("Recall:    ", recall_score(val_labels, y_pred , average="macro"))
-  print("F1 Score:  ",f1_score(val_labels, y_pred , average="macro"))
+  # y_pred = model.predict(val_data,verbose=1)
+  # #Convert to binary classification (0/1)
+  # y_pred = (y_pred > 0.5)
+  # #Replace bool value with 0/1
+  # y_pred = np.where(y_pred==True,1,y_pred)
+  # print("Precision: ",precision_score(val_labels, y_pred , average="macro"))
+  # print("Recall:    ", recall_score(val_labels, y_pred , average="macro"))
+  # print("F1 Score:  ",f1_score(val_labels, y_pred , average="macro"))
   
   return model
 
@@ -125,4 +128,4 @@ def main():
 if __name__ == "__main__":
   dns_model = main()
   print("Saving DNS Tunneling Model as DNS_MODEL")
-  dns_model.save("DNS_MODEL")
+  #dns_model.save("DNS_MODEL")
