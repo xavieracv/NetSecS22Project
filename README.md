@@ -6,7 +6,7 @@
   
   - Main application for parsing PCAP files for bot activity
 
-- dns_classifier.py
+- cnn_chrlevel_classifier.py
   
   - Generates character-level CNN model 
 
