@@ -23,7 +23,7 @@ def preprocess(data, maxLen = 0):
   tokenizer = Tokenizer(num_words=None, char_level=True)
   tokenizer.fit_on_texts(data["domain"])
   data_unpadded = pd.DataFrame()
-  data_unpadded["tokenized"] = [ tokenizer.texts_to_sequences(domain) for domain in data["domain"]]
+  data_unpadded["tokenized"] = [ flatten(tokenizer.texts_to_sequences(domain)) for domain in data["domain"]]
   
   #find longest sequence created
   #maxLen = 0
@@ -35,9 +35,6 @@ def preprocess(data, maxLen = 0):
   data_padded = preprocessing.sequence.pad_sequences(data_unpadded["tokenized"], maxlen= maxLen)
 
   return np.array(data_padded), maxLen
-
-
-
 
 def main():
 
@@ -78,7 +75,7 @@ def main():
   test_data, maxLen_of_test = preprocess(domain_test, maxLen_of_both)
   print("Preprocessing done.")  
 
-  print(train_data[0])
+  #print(train_data[0])
 
 
   """Reshape Data for Model Input"""
@@ -113,9 +110,9 @@ def main():
   print("Model performance metrics: ")
 
   y_pred = model.predict(val_data,verbose=1)
-  Convert to binary classification (0/1)
+  # Convert to binary classification (0/1)
   y_pred = (y_pred > 0.5)
-  Replace bool value with 0/1
+  # Replace bool value with 0/1
   y_pred = np.where(y_pred==True,1,y_pred)
   print("Precision: ",precision_score(val_labels, y_pred , average="macro"))
   print("Recall:    ", recall_score(val_labels, y_pred , average="macro"))
@@ -128,4 +125,4 @@ def main():
 if __name__ == "__main__":
   dns_model = main()
   print("Saving DNS Tunneling Model as DNS_MODEL")
-  dns_model.save("DNS_MODEL")
+  dns_model.save("../CNN_CHRLVEL_DNS")
