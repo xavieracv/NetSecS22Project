@@ -12,7 +12,11 @@
 
 - lstm_classifier.py
   
-  - Generates character-level LSTM model using word embeddings
+  - Generates character-level LSTM model
+
+- lstm_classifier_V2.py
+
+  - Generates character-level LSTM model using word embeddings (Embedding Layer)
 
 - IDN_find.py
   
