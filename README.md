@@ -22,6 +22,10 @@
 
   - Formats the IDN domains for consistency 
 
+- IDN_test.py
+
+  - Tests both character-level encoded models on the IDN dataset
+
 - datasets/
   
   - Directory containing datasets for model training. All files are saved in CSV format
