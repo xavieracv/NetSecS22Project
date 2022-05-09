@@ -128,11 +128,11 @@ def main():
 
     model.add(Dense(1, activation='sigmoid'))
     print(model.summary())
-    model.compile(optimizer='adam',loss='binary_crossentropy',metrics=['acc'])
+    model.compile(optimizer='adam', loss='binary_crossentropy',metrics=['acc'])
 
 
     print("Fitting model...")
-    model.fit(x_train, y_train, epochs=4, validation_data=(x_test,y_test))
+    model.fit(x_train, y_train, epochs=3, validation_data=(x_test,y_test))
   
     print("Model performance metrics: ")
 
