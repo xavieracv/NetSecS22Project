@@ -14,6 +14,14 @@
   
   - Generates character-level LSTM model using word embeddings
 
+- IDN_find.py
+  
+  - Uses google search engine to find IDN/punycode domains
+
+- IDN_parse.py
+
+  - Formats the IDN domains for consistency 
+
 - datasets/
   
   - Directory containing datasets for model training. All files are saved in CSV format
@@ -21,5 +29,4 @@
 - demo/
   
   - Directory containing files related to DNS server demonstration in course Presentation
-
 
